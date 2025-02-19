@@ -1,19 +1,35 @@
 from database_utils import DatabaseConnector
 from data_extraction import DataExtractor
+from data_cleaning import DataCleaner
 
-# Initialize DatabaseConnector
+# Initialize Classes
 db_connector = DatabaseConnector()
-
-# Initialize DataExtractor and pass the db_connector instance
 data_extractor = DataExtractor(db_connector)
+data_cleaner = DataCleaner()
 
-# List Tables
-tables = data_extractor.extract_table_names()
-print("Tables in database:", tables)
+# Extract user data
+print("Extracting user data from database...")
+user_df = data_extractor.read_rds_table("legacy_users")
+print("User data extracted.")
 
-# Read user the table
-user_table_name = "legacy_users"  # Change this if the table name is different
-df_users = data_extractor.read_rds_table(user_table_name)
+# Check missing values prior to cleaning:
+cleaned_user_df = data_cleaner.clean_user_data(user_df)
 
-print("User table preview:")
-print(df_users.head())  # Show first few rows
+"""
+# Check missing values prior to cleaning
+print("\n Checking missing values before cleaning:")
+print(user_df.isnull().sum())
+
+# Clean user data
+print("\n Cleaning user data...")
+cleaned_user_df = data_cleaner.clean_user_data(user_df)
+print("Data cleaned successfully.")
+
+# Check missing values after cleaning
+print("\n Checking missing values after cleaning:")
+print(cleaned_user_df.isnull().sum())
+
+# Preview of cleaned data
+print("\n Cleaned User Data Preview:")
+print(cleaned_user_df.head())
+"""
