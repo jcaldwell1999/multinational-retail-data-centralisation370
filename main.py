@@ -13,7 +13,13 @@ user_df = data_extractor.read_rds_table("legacy_users")
 print("User data extracted.")
 
 # Check missing values prior to cleaning:
+print("\n Cleaning user data...")
 cleaned_user_df = data_cleaner.clean_user_data(user_df)
+
+# Preview of cleaned data
+print("\n Cleaned Data Preview:")
+print(cleaned_user_df.head(10))
+
 
 """
 # Check missing values prior to cleaning
