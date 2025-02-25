@@ -20,6 +20,10 @@ cleaned_user_df = data_cleaner.clean_user_data(user_df)
 print("\n Cleaned Data Preview:")
 print(cleaned_user_df.head(10))
 
+# Upload cleaned data to the database
+print("\n Uploading cleaned user data to the database...")
+db_connector.upload_to_db(cleaned_user_df, "dim_users")
+print("Data uploaded successfully.")
 
 """
 # Check missing values prior to cleaning
