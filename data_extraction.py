@@ -1,5 +1,6 @@
 from database_utils import DatabaseConnector
 import pandas as pd
+from tabula import read_pdf
 
 class DataExtractor:
     """Utility class for extracting data from various sources."""
@@ -30,4 +31,23 @@ class DataExtractor:
         engine = self.db_connector.init_db_engine()
         with engine.connect() as connection:
             df = pd.read_sql(f"SELECT * FROM {table_name}", connection)
+        return df
+    
+    def retrieve_pdf_data(self, pdf_url):
+        """
+        Extracts table data from a PDF file.
+        
+        :param pdf_url: The URL or local path of the PDF file.
+        :return: DataFrame containing extracted table data.
+        """
+        print(f"Extracting data from PDF: {pdf_url}")
+
+        # Extract all tables from the PDF as a list of DataFrames
+        dfs = read_pdf(pdf_url, pages="all", multiple_tables=True)
+
+        df = pd.concat(dfs, ignore_index=True)
+
+        print("Extraction complete. Preview of data:")
+        print(df.head())
+
         return df

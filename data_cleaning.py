@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 
 class DataCleaner:
     """
@@ -66,3 +67,40 @@ class DataCleaner:
 
         print("Data cleaning complete.")
         return user_df
+
+    def clean_card_data(self, card_df):
+        """
+        Cleans card details by removing NULL values, duplicates, and ensuring correct formatting.
+
+        :param card_df: DataFrame containing raw card details.
+        :return: Cleaned DataFrame.
+        """
+        print("\nChecking missing values before cleaning: ")
+        print(card_df.isnull().sum())
+
+        # Remove duplicate rows
+        card_df = card_df.drop_duplicates()
+
+        # Convert date columns if needed
+        if 'expiry_date' in card_df.columns:
+            card_df.loc[:, 'expiry_date'] = pd.to_datetime(card_df['expiry_date'], format='%m/%y', errors='coerce')
+
+        # Replace NULL with empty string
+        card_df['card_number'] = card_df['card_number'].fillna("").astype(str)
+
+        # Allow non-numeric characters, but keep the numbers
+        card_df.loc[:, 'card_number'] = card_df['card_number'].apply(lambda x: re.sub(r'\D', '', x))
+
+        # Drop rows where BOTH 'card_number' and 'expiry_date' are NULL
+        card_df = card_df.dropna(subset=['card_number', 'expiry_date'])
+
+        # Drop any completely empty rows
+        #card_df = card_df.dropna(how='all')
+
+        print("Data cleaning complete. Preview of cleaned data: ")
+        print(card_df.head())
+
+        print("\nNo. of unique card numbers: ")
+        print(card_df['card_number'].unique())
+
+        return card_df
