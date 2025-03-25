@@ -104,3 +104,56 @@ class DataCleaner:
         print(card_df['card_number'].unique())
 
         return card_df
+    
+    def clean_store_data(self, store_df):
+        """
+        Cleans the extracted store data.
+
+        :param store_df: DataFrame containing raw store details.
+        :return: Cleaned DataFrame.
+        """
+        print("\nChecking missing values before cleaning: ")
+        print(store_df.isnull().sum())
+
+        # Remove duplicates
+        store_df = store_df.drop_duplicates()
+
+        # Drop lat columb
+        if 'lat' in store_df.columns:
+            store_df = store_df.drop(columns=['lat'])
+
+        # Standardize column names
+        store_df.columns = store_df.columns.str.lower().str.replace(" ", "_").str.strip()
+
+        # Convert date columns
+        if 'opening_date' in store_df.columns:
+            store_df['opening_date'] = pd.to_datetime(store_df['opening_date'], errors='coerce')
+
+        # Convert latitude and longitude to numeric - errors as NaN
+        if 'latitude' in store_df.columns:
+            store_df['latitude'] = pd.to_numeric(store_df['latitude'], errors='coerce')
+        if 'longitude' in store_df.columns:
+            store_df['longitude'] = pd.to_numeric(store_df['longitude'], errors='coerce')
+
+        # Drop rows where store_code is missing
+        store_df = store_df.dropna(subset=['store_code'])
+
+        # Replace missing latitude or longitude values with 0
+        store_df['latitude'] = store_df['latitude'].fillna(0)
+        store_df['longitude'] = store_df['longitude'].fillna(0)
+
+        # Drop any empty rows
+        store_df = store_df.dropna(how='all')
+
+        # Remove rows where critical columns contain meaningless data (gibberish or empty)
+        store_df = store_df[~(
+            (store_df['latitude'] == 0) &
+            (store_df['longitude'] == 0) &
+            (store_df['address'].isnull() | store_df['address'].str.len() < 10)
+        )]
+
+        print("\nChecking missing values after cleaning:")
+        print(store_df.isnull().sum())
+
+        print("Store data cleaning complete.")
+        return store_df

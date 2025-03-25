@@ -8,7 +8,46 @@ db_connector = DatabaseConnector()
 data_extractor = DataExtractor(db_connector)
 data_cleaner = DataCleaner()
 
-# Card Data Processing
+# Initialize API Details
+api_url_count = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores"
+api_url_store = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}"
+headers = {"x-api-key": "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"}
+
+# Get number of stores
+store_count = data_extractor.list_number_of_stores(api_url_count, headers)
+print(f"Total number of stores: {store_count}")
+
+# Extract all store data
+store_df = data_extractor.retrieve_stores_data(api_url_store, headers, store_count)
+print("Extracted store data preview: ")
+print(store_df.head())
+
+# Checking missing values before cleaning
+print("\nChecking missing values before cleaning:")
+print(store_df.isnull().sum())  # See how many NaNs exist
+
+"""if 'index' in store_df.columns:
+   store_df = store_df.rename(columns={'index': 'index_col'})
+
+show(store_df)"""
+
+# Clean store data
+cleaned_store_df = data_cleaner.clean_store_data(store_df)
+
+print("\nCheckin missing values after cleaning: ")
+print(cleaned_store_df.isnull().sum())
+
+db_connector.upload_to_db(cleaned_store_df, "dim_store_details")
+print("Store data uploaded successfully")
+
+"""if 'index' in cleaned_store_df.columns:
+   cleaned_store_df = cleaned_store_df.rename(columns={'index': 'index_col'})
+
+show(cleaned_store_df.iloc[:])"""
+
+
+# Commented out card processing
+"""# Card Data Processing
 pdf_url = "https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf"
 
 # Step 1: Extract Data from PDF
@@ -43,10 +82,7 @@ print("\nUploading cleaned card data to database...")
 db_connector.upload_to_db(cleaned_card_df, "dim_card_details")
 
 print("Card data processing complete.")
-
-
-
-
+"""
 # Commented out: User data processing
 """# Extract user data
 print("Extracting user data from database...")

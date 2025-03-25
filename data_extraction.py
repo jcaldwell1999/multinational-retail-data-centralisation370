@@ -1,6 +1,8 @@
 from database_utils import DatabaseConnector
 import pandas as pd
 from tabula import read_pdf
+import requests
+import time # To add delays
 
 class DataExtractor:
     """Utility class for extracting data from various sources."""
@@ -51,3 +53,40 @@ class DataExtractor:
         print(df.head())
 
         return df
+
+    def list_number_of_stores(self, url, headers):
+        """
+        Retrieves the number of stores from the API.
+
+        :param url: API endpoint for fetching the store count.
+        :param headers: Dictionary containing API key.
+        :return: Total number of stores as an integer.
+        """
+        response = requests.get(url, headers=headers) # Make GET request
+        if response.status_code == 200: # Check if request was successful
+            return response.json()['number_stores']
+        else: 
+            raise Exception(f"Failed to retrieve number of stores. Status code: {response.status_code}")
+        
+    def retrieve_stores_data(self, url, headers, store_count):
+        """
+        Extracts details for each store from the API.
+
+        :param url: Store details API endpoint.
+        :param headers: Dictionary containing the API key.
+        :param store_count: Total number of stores to retrieve.
+        :return: DataFrame containing all store details.
+        """
+        stores_data = []
+        
+        for store_number in range(1, store_count + 1): # Loop through store numbers
+            response = requests.get(url.format(store_number=store_number), headers=headers)
+            if response.status_code == 200:
+                store_info = response.json()
+                stores_data.append(store_info)
+            else:
+                print(f"Failed to retrieve store {store_number}. Skipping...")
+            
+            time.sleep(0.2) # Add delay to prevent API rate limits
+
+        return pd.DataFrame(stores_data) # Convert list to DataFrame
