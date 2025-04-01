@@ -8,7 +8,28 @@ db_connector = DatabaseConnector()
 data_extractor = DataExtractor(db_connector)
 data_cleaner = DataCleaner()
 
-# Initialize API Details
+# S3 URL for product CSV
+s3_url = "s3://data-handling-public/products.csv"
+
+# Extract product data from S3
+print("Extracting product data from S3...")
+product_df = data_extractor.extract_from_s3(s3_url)
+print("Product data extracted!")
+
+# Preview extracted data
+print(product_df.head())
+
+# Cleaning data
+print("Cleaning Product Data...")
+cleaned_product_df = data_cleaner.clean_products_data(product_df)
+show(cleaned_product_df)
+print(f"Final shape: {cleaned_product_df.shape}")
+
+# Upload to db
+db_connector.upload_to_db(cleaned_product_df, "dim_products")
+
+# Store details processing
+"""# Initialize API Details
 api_url_count = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores"
 api_url_store = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}"
 headers = {"x-api-key": "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"}
@@ -26,10 +47,10 @@ print(store_df.head())
 print("\nChecking missing values before cleaning:")
 print(store_df.isnull().sum())  # See how many NaNs exist
 
-"""if 'index' in store_df.columns:
-   store_df = store_df.rename(columns={'index': 'index_col'})
+#if 'index' in store_df.columns:
+#   store_df = store_df.rename(columns={'index': 'index_col'})
 
-show(store_df)"""
+#show(store_df)
 
 # Clean store data
 cleaned_store_df = data_cleaner.clean_store_data(store_df)
@@ -39,6 +60,7 @@ print(cleaned_store_df.isnull().sum())
 
 db_connector.upload_to_db(cleaned_store_df, "dim_store_details")
 print("Store data uploaded successfully")
+"""
 
 """if 'index' in cleaned_store_df.columns:
    cleaned_store_df = cleaned_store_df.rename(columns={'index': 'index_col'})

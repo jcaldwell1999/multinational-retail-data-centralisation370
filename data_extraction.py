@@ -3,6 +3,8 @@ import pandas as pd
 from tabula import read_pdf
 import requests
 import time # To add delays
+import boto3
+from io import StringIO
 
 class DataExtractor:
     """Utility class for extracting data from various sources."""
@@ -90,3 +92,26 @@ class DataExtractor:
             time.sleep(0.2) # Add delay to prevent API rate limits
 
         return pd.DataFrame(stores_data) # Convert list to DataFrame
+    
+    def extract_from_s3(self, s3_uri):
+        """
+        Extracts a CSV file from a public S3 bucket and returns a pandas DataFrame.
+
+        :param s3_uri: S3 URI to the CSV file
+        :return: pandas DataFrame with the product data
+        """
+        # Parse the bucket name and key from the s3_uri
+        s3_uri = s3_uri.replace("s3://", "")
+        bucket_name, *key_parts = s3_uri.split("/")
+        key = "/".join(key_parts)
+
+        # Create S3 Client
+        s3 = boto3.client('s3')
+
+        # Get the object from S3
+        obj = s3.get_object(Bucket=bucket_name, Key=key)
+
+        # Read the CSV content
+        df = pd.read_csv(obj['Body'])
+
+        return df

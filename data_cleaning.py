@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+import numpy as np
 
 class DataCleaner:
     """
@@ -157,3 +158,82 @@ class DataCleaner:
 
         print("Store data cleaning complete.")
         return store_df
+    
+    def convert_product_weight(self, df):
+        """
+        Converts weight values to kilograms in a numeric format.
+        """
+        def convert_weight(value):
+            if pd.isnull(value):
+                return None
+            
+            value = value.lower().strip()
+
+            # Case 1: Format like "3 x 132g"
+            match = re.match(r"(\d+)\s*x\s*([\d\.]+)(kg|g|ml)", value)
+            if match:
+                quantity = int(match.group(1))
+                unit_weight = float(match.group(2))
+                unit = match.group(3)
+            
+                if unit == "kg":
+                    return quantity * unit_weight
+                elif unit in ["g", "ml"]:
+                    return quantity * unit_weight / 1000
+                else:
+                    return None
+            
+            # Case 2: Format like "200g", "1.5kg", "750ml"
+            match = re.match(r"([\d\.]+)(kg|g|ml)", value)
+            if match: 
+                weight = float(match.group(1))
+                unit = match.group(2)
+
+                if unit == "kg":
+                    return weight
+                elif unit in ["g", "ml"]:
+                    return weight / 1000
+                else:
+                    return None
+                
+            # If it doesn't match any expected format
+            return None
+        
+        print("Converting product weight to kg...")
+        df["weight"] = df["weight"].apply(convert_weight)
+        df = df.dropna(subset=["weight"]) # Drop rows where weight could not be parsed
+        print("Weight conversion complete. Preview")
+        print(df["weight"].head(20))
+        return df
+    
+    def clean_products_data(self, product_df):
+        """
+        Cleans product data by converting weights to kilograms,
+        removing null/duplicate rows, and standardizing columns types.
+
+        :param product_df: DataFrame containing raw product data.
+        :return: Cleaned DataFrame.
+        """
+        print("\nBefore cleaning Null Values:")
+        print(product_df.isnull().sum())
+
+        # Drop fully null rows
+        product_df = product_df.dropna(how='all')
+
+        # Drop rows with missing product_code or weight
+        product_df = product_df.dropna(subset=['weight'])
+
+        # Remove duplicates
+        product_df = product_df.drop_duplicates()
+        
+        #Only keep rows where EAN is fully numberic
+        product_df = product_df[product_df['EAN'].astype(str).str.isnumeric()]
+
+        # Use convert_product_weight method
+        product_df = self.convert_product_weight(product_df)
+
+        print("\nAfter cleaning Null values: ")
+        print(product_df.isnull().sum())
+
+        print("Product data cleaning complete.")
+        return product_df
