@@ -237,3 +237,25 @@ class DataCleaner:
 
         print("Product data cleaning complete.")
         return product_df
+    
+    def clean_orders_data(self, orders_df):
+        """
+        Cleans the orders data by removing unnecessary columns.
+
+        :param orders_df: Raw DataFrame containing orders data.
+        :return: Cleaned DataFrame ready for upload.
+        """
+        print("Cleaning orders data...")
+
+        # Drop unnecessary columns
+        cols_to_drop = ['first_name', 'last_name', '1', 'level_0', 'index']
+        for col in cols_to_drop:
+            if col in orders_df.columns:
+                orders_df = orders_df.drop(columns=[col])
+
+        # Drop fully empty rows just in case
+        orders_df = orders_df.dropna(how='all')
+
+        print("Cleaned orders data preview:")
+        print(orders_df.head())
+        return orders_df

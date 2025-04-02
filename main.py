@@ -8,7 +8,20 @@ db_connector = DatabaseConnector()
 data_extractor = DataExtractor(db_connector)
 data_cleaner = DataCleaner()
 
-# S3 URL for product CSV
+print("Listing tables:...")
+tables = db_connector.list_db_tables()
+print(tables)
+orders_df = data_extractor.read_rds_table("orders_table")
+print(orders_df.head())
+print("Cleaning orders table data...")
+cleaned_orders_df = data_cleaner.clean_orders_data(orders_df)
+print(f"Cleaned orders shape: {cleaned_orders_df.shape}")
+
+db_connector.upload_to_db(cleaned_orders_df, "orders_table")
+
+
+# Product Data extracting, cleaning and uploading
+"""# S3 URL for product CSV
 s3_url = "s3://data-handling-public/products.csv"
 
 # Extract product data from S3
@@ -26,7 +39,7 @@ show(cleaned_product_df)
 print(f"Final shape: {cleaned_product_df.shape}")
 
 # Upload to db
-db_connector.upload_to_db(cleaned_product_df, "dim_products")
+db_connector.upload_to_db(cleaned_product_df, "dim_products")"""
 
 # Store details processing
 """# Initialize API Details
