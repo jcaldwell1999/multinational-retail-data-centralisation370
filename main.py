@@ -8,7 +8,23 @@ db_connector = DatabaseConnector()
 data_extractor = DataExtractor(db_connector)
 data_cleaner = DataCleaner()
 
-print("Listing tables:...")
+json_url = "https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json"
+
+# Milestone 2: Task 8: Retrieve and clean the date events data.
+print("Extracting date times data...")
+data_df = data_extractor.extract_json_data(json_url)
+
+# Clean date times data
+cleaned_data_df = data_cleaner.clean_date_data(data_df)
+show(cleaned_data_df)
+
+db_connector.upload_to_db(cleaned_data_df, "dim_date_times")
+
+
+
+
+# Extraction, cleaning and uploading - Orders Table
+"""print("Listing tables:...")
 tables = db_connector.list_db_tables()
 print(tables)
 orders_df = data_extractor.read_rds_table("orders_table")
@@ -17,8 +33,7 @@ print("Cleaning orders table data...")
 cleaned_orders_df = data_cleaner.clean_orders_data(orders_df)
 print(f"Cleaned orders shape: {cleaned_orders_df.shape}")
 
-db_connector.upload_to_db(cleaned_orders_df, "orders_table")
-
+db_connector.upload_to_db(cleaned_orders_df, "orders_table")"""
 
 # Product Data extracting, cleaning and uploading
 """# S3 URL for product CSV

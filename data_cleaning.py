@@ -259,3 +259,35 @@ class DataCleaner:
         print("Cleaned orders data preview:")
         print(orders_df.head())
         return orders_df
+    
+    def clean_date_data(self, df):
+        """
+        Cleans the date event data by:
+        - Removing duplicate or null rows
+        - Converts date/time columns into datetime format
+        - Standardises column names
+        """
+        print("\nCleaning date data...")
+
+        # Standardize column names
+        df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
+
+        # Replace "NULL" string values with real NaN values
+        df = df.replace("NULL", pd.NA)
+
+        # Convert day/month/year to numeric
+        for col in ['day', 'month', 'year']:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        
+        # Drop rows with any NULL values
+        df = df.dropna()
+
+        # Remove any duplicate rows
+        df = df.drop_duplicates()
+
+        print("Cleaned date data preview:")
+        print(df.head())
+        print(f"Cleaned shape: {df.shape}")
+
+        return df

@@ -115,3 +115,16 @@ class DataExtractor:
         df = pd.read_csv(obj['Body'])
 
         return df
+    
+    def extract_json_data(self, url: str) -> pd.DataFrame:
+        """
+        Downloads and loads a JSON file from a URL into a DataFrame.
+        """
+        print(f"Extracting JSON data from {url}")
+        response = requests.get(url)
+        response.raise_for_status() # Raise error if the request fails.
+        data = response.json()
+        df = pd.DataFrame(data)
+        print("JSON extraction complete. Preview:")
+        print(df.head())
+        return df
