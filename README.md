@@ -44,3 +44,7 @@ MULTINATIONAL-RETAIL-DATA-CENTRALISATION370/
 ├── main.py                      # Main script to run and orchestrate the data pipeline
 ├── product_df.csv               # Sample extracted CSV for products 
 └── README.md                    # Project documentation
+
+## License
+
+This project is for educational purposes as part of the AiCore curriculum.
