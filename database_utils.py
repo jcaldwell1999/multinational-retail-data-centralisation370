@@ -21,11 +21,15 @@ class DatabaseConnector:
 
     def init_db_engine(self):
         """Initializes a database connection using SQLAlchemy and returns the engine."""
-        creds = self.read_db_creds()
+        #creds = self.read_db_creds()
+        engine = create_engine("postgresql://postgres:password@localhost:5432/sales_data") # Local postresql database engine
+        """
+        # Engine for 
         engine = create_engine(
             f"postgresql://{creds['RDS_USER']}:{creds['RDS_PASSWORD']}@"
             f"{creds['RDS_HOST']}:{creds['RDS_PORT']}/{creds['RDS_DATABASE']}"
         )
+        """
         return engine
 
     def list_db_tables(self):
